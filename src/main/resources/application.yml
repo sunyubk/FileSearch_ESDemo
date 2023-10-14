@@ -1,0 +1,20 @@
+# 应用服务 WEB 访问端口
+server:
+  port: 8080
+
+  spring:
+    elasticsearch:
+      # ES 的连接地址，多个地址使用 , 分割
+      uris: localhost:9200
+      # 用户名
+      username:
+      # 密码
+      password:
+      # 连接超时时间
+      connection-timeout: 1000
+      # 读取超时时间
+      read-timeout: 1000
+
+  logging:
+    level:
+      root: info
