@@ -9,6 +9,17 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.BaseFont;
+import com.itextpdf.text.pdf.PdfReader;
+import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.text.pdf.parser.PdfTextExtractor;
+
+import java.io.*;
+import java.nio.charset.Charset;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -144,6 +155,63 @@ public class FileUtil {
         return content.toString();
     }
 
+
+    /**
+     * txt文本文件  转pdf文件
+     * @param textPath   F:/data/te616.txt
+     * @param pdfPath  F:/data/aet618.pdf
+     * @throws DocumentException
+     * @throws IOException
+     */
+    public static void textToPdf(String textPath,String pdfPath) throws DocumentException, IOException {
+        Document doc = new Document();
+        OutputStream os = new FileOutputStream(new File(pdfPath));
+        PdfWriter.getInstance(doc, os);
+        doc.open();
+        //指定 使用内置的中文字体
+        BaseFont baseFont =
+                BaseFont.createFont("STSong-Light", "UniGB-UCS2-H", BaseFont.EMBEDDED);
+        Font font = new Font(baseFont,12,Font.NORMAL);
+        //指定输出编码为UTF-8
+        InputStreamReader isr = new InputStreamReader(
+                new FileInputStream(new File(textPath)), Charset.forName("UTF-8"));
+        BufferedReader br = new BufferedReader(isr);
+        String str = "";
+        while((str = br.readLine()) != null){
+            doc.add(new Paragraph(str,font));
+        }
+        isr.close();
+        br.close();
+        doc.close();
+    }
+
+
+    /**
+     * 读取pdf文件的内容
+     * @param filePath  F:/data/aet618.pdf
+     * @return  String
+     */
+    public static String readPDF(String filePath){
+        StringBuilder result = new StringBuilder();
+        try {
+            PdfReader reader = new PdfReader(filePath);
+            int countPage = reader.getNumberOfPages();
+            for(int i=1;i<=countPage;i++){
+                result.append(PdfTextExtractor.getTextFromPage(reader, i));
+            }
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result.toString();
+    }
+
+
+    /**
+     * 将内容输出到文件
+     * @param content
+     * @param outputFilePath
+     */
     public static void writeContentToFile(String content, String outputFilePath) {
         try {
             File outputFile = new File(outputFilePath);

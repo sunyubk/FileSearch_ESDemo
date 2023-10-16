@@ -23,7 +23,7 @@ public class EsFile implements Serializable {
 
 
     @Id
-    private Long id;
+    private String id;
 
     @Field(type = FieldType.Text, index = false)
     private String fileCode;
@@ -31,10 +31,18 @@ public class EsFile implements Serializable {
     /**
      * ik_max_word 细粒度拆分
      * ik_smart 粗粒度
-     * 文件名
+     * 系统中列表所展示文件名
      */
     @Field(type = FieldType.Text, analyzer = "ik_max_word")
     private String fileName;
+
+    /**
+     * ik_max_word 细粒度拆分
+     * ik_smart 粗粒度
+     * 物理文件名
+     */
+    @Field(type = FieldType.Text, analyzer = "ik_max_word")
+    private String realFileName;
 
     /**
      * 文件内容

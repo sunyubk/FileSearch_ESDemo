@@ -19,11 +19,13 @@ import java.util.Date;
 @Data
 public class EsFileVO implements Serializable {
 
-    private Long id;
+    // private String id;
 
     private String fileCode;
 
     private String fileName;
+
+    private String realFileName;
 
     private String filePath;
 

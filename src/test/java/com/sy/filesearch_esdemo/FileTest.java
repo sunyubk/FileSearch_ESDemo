@@ -42,4 +42,15 @@ public class FileTest {
             FileUtil.writeContentToFile(content, "outputExcelContent.txt");
         }
     }
+
+    @Test
+    public void readPdf() {
+        // String path = "/Users/sunyu/Documents/工作/国电/测试文件/扫描件_第1章项目综述.pdf";
+        String path = "/Users/sunyu/Documents/工作/国电/测试文件/孙宇-周报20230915.pdf";
+        String content = FileUtil.readPDF(path);
+        if (content != null && !content.equals("")) {
+            // 将内容写入文件
+            FileUtil.writeContentToFile(content, "outputPdfContent.txt");
+        }
+    }
 }

@@ -3,13 +3,11 @@ package com.sy.filesearch_esdemo.controller;
 import com.alibaba.fastjson2.JSONObject;
 import com.sy.filesearch_esdemo.entity.Base.Page;
 import com.sy.filesearch_esdemo.entity.EsFile;
+import com.sy.filesearch_esdemo.entity.Param.EsFileUpdateParam;
 import com.sy.filesearch_esdemo.entity.VO.EsFileVO;
 import com.sy.filesearch_esdemo.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -55,6 +53,36 @@ public class FileController {
         result.put("data", page);
         return result;
 
+    }
+
+
+    /**
+     * 更新ES中的数据
+     * @return
+     */
+    @PutMapping("/update")
+    public JSONObject update(@RequestParam("docId") String docId,
+                             @RequestBody EsFileUpdateParam param) {
+        Object obj = service.update(docId, param);
+        JSONObject result = new JSONObject();
+        result.put("code", 200);
+        result.put("message", "更新");
+        result.put("data", obj);
+        return result;
+    }
+
+    /**
+     * 删除ES中的数据
+     * @return
+     */
+    @DeleteMapping("/del")
+    public JSONObject del(@RequestParam("docId") String docId) {
+        Object obj = service.del(docId);
+        JSONObject result = new JSONObject();
+        result.put("code", 200);
+        result.put("message", "删除");
+        result.put("data", obj);
+        return result;
     }
 
 }
