@@ -58,7 +58,6 @@ public class FileServiceImpl implements FileService {
         esFile1.setFileVersion(0);
         esFile1.setCreateTime(new Date());
 
-
         String excelPath = "/Users/sunyu/Documents/工作/国电/BOS接口文档/Bos3DEngine服务接口列表.xlsx";
         String excelContent = FileUtil.readExcel(excelPath);
         EsFile esFile2 = new EsFile();
@@ -84,6 +83,18 @@ public class FileServiceImpl implements FileService {
         esFile3.setFileVersion(0);
         esFile3.setCreateTime(new Date());
 
+        String testwordPath = "/Users/sunyu/Documents/工作/国电/测试文件/word测试文件.docx";
+        String testwordContent = FileUtil.readWord(testwordPath);
+        EsFile testesFile1 = new EsFile();
+        testesFile1.setId("4");
+        testesFile1.setFileCode("4");
+        testesFile1.setFileName("word测试文件.docx");
+        testesFile1.setRealFileName("word测试文件.docx");
+        testesFile1.setContent(testwordContent);
+        testesFile1.setFilePath("word测试文档/word测试文件.docx");
+        testesFile1.setFileVersion(0);
+        testesFile1.setCreateTime(new Date());
+
         boolean exists = elasticsearchRestTemplate.indexOps(EsFile.class).exists();
         if (!exists){
             elasticsearchRestTemplate.indexOps(EsFile.class).create();
@@ -91,11 +102,13 @@ public class FileServiceImpl implements FileService {
         elasticsearchRestTemplate.save(esFile1);
         elasticsearchRestTemplate.save(esFile2);
         elasticsearchRestTemplate.save(esFile3);
+        elasticsearchRestTemplate.save(testesFile1);
         logger.info("doc文件以添加到ES中");
     }
 
     @Override
     public Page search(String keyword, Integer pageNumber, Integer pageSize) {
+        long l = System.currentTimeMillis();
         // 设置分页查询的参数，这里只是简单的配置了条数，还可以配置排序等
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
 
@@ -141,12 +154,13 @@ public class FileServiceImpl implements FileService {
                     // 获取关键词，并赋值给返回给页面的VO对象
                     int keywordCount = esFile.getContent().split(keyword).length - 1;
                     esFileVO.setKeywordCount(keywordCount);
-                    results.add(esFileVO);
                 }
+                results.add(esFileVO);
             }
         }
 
         Page page = new Page(pageNumber, pageSize, search.getSearchHits().size(), results);
+        logger.info("执行时间：{}",System.currentTimeMillis() - l);
         return page;
     }
 
