@@ -152,7 +152,7 @@ public class FileServiceImpl implements FileService {
                 BeanUtils.copyProperties(esFile, esFileVO);
                 if (keyword != null && !keyword.equals("")) {
                     // 获取关键词，并赋值给返回给页面的VO对象
-                    int keywordCount = esFile.getContent().split(keyword).length - 1;
+                    int keywordCount = esFile.getContent().split(keyword.replaceAll(keyword,"\\s+")).length - 1;
                     esFileVO.setKeywordCount(keywordCount);
                 }
                 results.add(esFileVO);
