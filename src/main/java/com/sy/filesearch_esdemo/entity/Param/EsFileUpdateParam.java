@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
+ * 文件列表更新对应的ES更新入参
  * @ClassName EsFileUpdateParam
  * @Description
  * @Author sunyu

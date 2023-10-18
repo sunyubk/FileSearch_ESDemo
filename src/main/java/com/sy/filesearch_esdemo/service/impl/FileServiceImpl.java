@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.SearchHit;
@@ -24,7 +25,9 @@ import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilde
 import org.springframework.data.elasticsearch.core.query.UpdateQuery;
 import org.springframework.data.elasticsearch.core.query.UpdateResponse;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.util.*;
 
 
@@ -38,6 +41,10 @@ import java.util.*;
 @Slf4j
 @Service
 public class FileServiceImpl implements FileService {
+
+
+    @Value("${file.tempFilePath}")
+    private String filePath;
 
     @Autowired
     ElasticsearchRestTemplate elasticsearchRestTemplate;
@@ -107,6 +114,29 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
+    public void uploadFile(MultipartFile file) {
+        File tempFile = FileUtil.multipartFileToFile(file, filePath);
+        String fileName = file.getOriginalFilename();
+        String content = FileUtil.readWord(tempFile.getPath());
+        FileUtil.delFile(tempFile);
+        EsFile esFile1 = new EsFile();
+        esFile1.setId("1");
+        esFile1.setFileCode("1");
+        esFile1.setFileName(fileName);
+        esFile1.setRealFileName(fileName);
+        esFile1.setContent(content);
+        esFile1.setFilePath("word测试文档/" + fileName);
+        esFile1.setFileVersion(0);
+        esFile1.setCreateTime(new Date());
+        boolean exists = elasticsearchRestTemplate.indexOps(EsFile.class).exists();
+        if (!exists){
+            elasticsearchRestTemplate.indexOps(EsFile.class).create();
+        }
+        elasticsearchRestTemplate.save(esFile1);
+        logger.info("doc文件以添加到ES中");
+    }
+
+    @Override
     public Page search(String keyword, Integer pageNumber, Integer pageSize) {
         long l = System.currentTimeMillis();
         // 设置分页查询的参数，这里只是简单的配置了条数，还可以配置排序等
@@ -146,14 +176,15 @@ public class FileServiceImpl implements FileService {
         // 统计关键词在对应文档内容出现的次数，并不是正规的词频统计，因为这里只是对es中存储的文件的内容中的关键词出现次数做统计，并不包含别的字段。
         for (SearchHit<EsFile> hit : search) {
             EsFile esFile = hit.getContent();
-            if (esFile != null && esFile.getContent() != null) {
-
+            if (esFile != null) {
                 EsFileVO esFileVO = new EsFileVO();
                 BeanUtils.copyProperties(esFile, esFileVO);
-                if (keyword != null && !keyword.equals("")) {
-                    // 获取关键词，并赋值给返回给页面的VO对象
-                    int keywordCount = esFile.getContent().split(keyword.replaceAll(keyword,"\\s+")).length - 1;
-                    esFileVO.setKeywordCount(keywordCount);
+                if (esFile.getContent() != null && !esFile.getContent().equals("")) {
+                    if (keyword != null && !keyword.equals("")) {
+                        // 获取关键词，并赋值给返回给页面的VO对象
+                        int keywordCount = esFile.getContent().split(keyword.replaceAll(keyword,"\\s+")).length - 1;
+                        esFileVO.setKeywordCount(keywordCount);
+                    }
                 }
                 results.add(esFileVO);
             }

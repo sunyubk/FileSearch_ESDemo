@@ -1,5 +1,7 @@
 package com.sy.filesearch_esdemo.utils;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.apache.poi.POIXMLDocument;
 import org.apache.poi.POIXMLTextExtractor;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -17,11 +19,12 @@ import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.parser.PdfTextExtractor;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.nio.charset.Charset;
 
-import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Iterator;
@@ -34,8 +37,8 @@ import java.util.Iterator;
  * @Date 2023/10/12 14:08
  * @Version 1.0
  **/
+@Slf4j
 public class FileUtil {
-
 
     public static String readWord(String filePath) {
         String[] split = filePath.split("\\.");
@@ -225,6 +228,37 @@ public class FileUtil {
             writer.close();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * 将 MultipartFile转为临时文件，返回临时文件路径
+     * @param multipartFile
+     * @return
+     */
+    public static File multipartFileToFile(MultipartFile multipartFile, String tempFilePath) {
+        File file = null;
+        //判断是否为null
+        if (multipartFile.equals("") || multipartFile.getSize() <= 0) {
+            return file;
+        }
+        file = StringUtils.isEmpty(tempFilePath) ? new File(multipartFile.getOriginalFilename()) :
+                new File(tempFilePath, multipartFile.getOriginalFilename());
+        try {
+            FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return file;
+    }
+
+    /**
+     * 删除文件
+     * @param file
+     */
+    public static void delFile(File file) {
+        if (file != null) {
+            file.delete();
         }
     }
 }

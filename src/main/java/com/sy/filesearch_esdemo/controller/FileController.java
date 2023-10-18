@@ -8,6 +8,7 @@ import com.sy.filesearch_esdemo.entity.VO.EsFileVO;
 import com.sy.filesearch_esdemo.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -33,6 +34,18 @@ public class FileController {
     @GetMapping("/uploadFile")
     public String uploadFile() {
         service.uploadFile();
+        return "ok";
+
+    }
+
+    /**
+     * 上传文件的接口
+     *
+     * @return
+     */
+    @PostMapping("/uploadFile")
+    public String uploadFile(@RequestParam MultipartFile file) {
+        service.uploadFile(file);
         return "ok";
 
     }
